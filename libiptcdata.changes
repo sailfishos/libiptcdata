@@ -1,0 +1,15 @@
+* Mon Dec 10 2012 Marko Saukko <marko.saukko@jollamobile.com> - 1.0.4
+- Updated packaging.
+
+* Tue Jun 26 2012 Marko Saukko <sage@merproject.org> - 1.0.4
+- Packaging update.
+
+* Mon Nov 14 2011 Marko Saukko <marko.saukko@cybercom.com> - 1.0.4
+- Removed gtk-doc dependency.
+
+* Sat Feb 27 2010 Anas Nashif <anas.nashif@intel.com> - 1.0.4
+- Updated with latest spectacle
+- Include YAML file in source rpm
+
+* Tue Dec 22 2009 Ziv Chang <ziv.chang@intel.com> 1.0.4
+- Initial import into Mobiln
