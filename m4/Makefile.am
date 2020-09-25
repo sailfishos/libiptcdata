@@ -1,1 +1,0 @@
-EXTRA_DIST = stdint.m4 python-devel.m4
