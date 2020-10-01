@@ -1,0 +1,3 @@
+[submodule "libiptcdata"]
+	path = libiptcdata
+	url = https://git.sailfishos.org/mirror/libiptcdata.git

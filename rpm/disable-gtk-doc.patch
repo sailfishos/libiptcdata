@@ -1,0 +1,86 @@
+diff --git a/autogen.sh b/autogen.sh
+index 19aa40b..87f6cf1 100755
+--- a/autogen.sh
++++ b/autogen.sh
+@@ -24,6 +24,19 @@ if $have_libtool ; then : ; else
+ 	DIE=1
+ fi
+ 
++# check if gtk-doc is explicitly disabled
++for ag_option in $AUTOGEN_CONFIGURE_ARGS $@
++do
++  case $ag_option in
++    -disable-gtk-doc | --disable-gtk-doc)
++    enable_gtk_doc=no
++  ;;
++  esac
++done
++
++if test x$enable_gtk_doc = xno; then
++  echo "skipping test for gtkdocize"
++else
+ (gtkdocize --version) < /dev/null > /dev/null 2>&1 || {
+ 	echo
+ 	echo "You must have gtk-doc installed to compile $PROJECT."
+@@ -31,6 +44,7 @@ fi
+ 	echo "or get the source tarball at ftp://ftp.gnome.org/pub/GNOME/sources/gtk-doc/"
+ 	DIE=1
+ }
++fi
+ 
+ (autoconf --version) < /dev/null > /dev/null 2>&1 || {
+ 	echo
+@@ -72,8 +86,17 @@ ACLOCAL_FLAGS="-I m4"
+ 
+ rm -rf autom4te.cache
+ 
+-
+-gtkdocize || exit $?
++if test x$enable_gtk_doc = xno; then
++    if test -f gtk-doc.make; then :; else
++       echo "EXTRA_DIST = missing-gtk-doc" > gtk-doc.make
++    fi
++    echo "WARNING: You have disabled gtk-doc."
++    echo "         As a result, you will not be able to generate the API"
++    echo "         documentation and 'make dist' will not work."
++    echo
++else
++    gtkdocize || exit $?
++fi
+ 
+ autopoint || exit $?
+ $ACLOCAL $ACLOCAL_FLAGS || exit $?
+@@ -82,7 +105,12 @@ $ACLOCAL $ACLOCAL_FLAGS || exit $?
+ autoconf || exit $?
+ autoheader || exit $?
+ $AUTOMAKE --add-missing || exit $?
+-gtkdocize || exit $?
++
++if test x$enable_gtk_doc = xno; then
++    echo "skipping gtkdocize"
++else
++    gtkdocize || exit $?
++fi
+ 
+ cd $ORIGDIR || exit $?
+ 
+diff --git a/configure.ac b/configure.ac
+index 74ce1c3..e7fc769 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -74,8 +74,13 @@ AM_ICONV()
+ dnl Check for headers (Mac OSX often doesn't have them)
+ AC_CHECK_HEADERS([getopt.h wchar.h iconv.h])
+ 
+-
+-GTK_DOC_CHECK([1.14],[--flavour no-tmpl])
++AM_CONDITIONAL(ENABLE_GTK_DOC, test "x$enable_gtk_doc" = xyes)
++AM_CONDITIONAL(DISABLE_GTK_DOC, test "x$disable_gtk_doc" = xno)
++# Check for GTK_DOC_CHECK availability. The GTK_DOC_CHECK invocation
++# must be on its own line, gtkdocize relies on it
++m4_ifdef([GTK_DOC_CHECK], [
++ GTK_DOC_CHECK([1.17],[--flavour no-tmpl])
++])
+ AC_CONFIG_MACRO_DIR(m4)
+ 
+ dnl ---------------------------------------------------------------------------

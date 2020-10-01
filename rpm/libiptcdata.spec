@@ -1,14 +1,14 @@
 Name:       libiptcdata
 Summary:    IPTC tag library
-Version:    1.0.4
+Version:    1.0.5
 Release:    1
-Group:      Development/Libraries
 License:    LGPLv2
-URL:        http://libiptcdata.sourceforge.net/
+URL:        https://github.com/ianw/libiptcdata
 Source0:    %{name}-%{version}.tar.gz
+Patch0:     disable-gtk-doc.patch
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
-BuildRequires:  python-devel
+BuildRequires:  python3-devel
 BuildRequires:  gettext
 BuildRequires:  libtool
 
@@ -24,7 +24,6 @@ iptc, for editing IPTC data in JPEG files, as well as Python bindings.
 
 %package devel
 Summary:    Headers and libraries for libiptcdata application development
-Group:      Development/Libraries
 Requires:   %{name} = %{version}-%{release}
 
 %description devel
@@ -33,9 +32,8 @@ files that you can use to develop libiptcdata applications.
 
 %package python
 Summary:    Python bindings for libiptcdata
-Group:      Development/Libraries
 Requires:   %{name} = %{version}-%{release}
-Requires:   python-devel
+Requires:   python3-devel
 
 %description python
 The libiptcdata-python package contains a Python module that allows Python 
@@ -44,31 +42,28 @@ metadata in images.
 
 %package doc
 Summary:   Documentation for %{name}
-Group:     Documentation
+BuildArch: noarch
 Requires:  %{name} = %{version}-%{release}
 
 %description doc
 Documentation and python examples for %{name}.
 
 %prep
-%setup -q -n %{name}-%{version}
+%autosetup -p1 -n %{name}-%{version}/%{name}
 
 %build
-
-%configure --disable-static \
+export PYTHON_VERSION=%python3_version
+%autogen --disable-static \
+    --disable-gtk-doc \
     --enable-python
-
-make %{?_smp_mflags}
+%make_build
 
 %install
-rm -rf %{buildroot}
 %make_install
 
 %find_lang iptc --all-name
 
 mkdir -p %{buildroot}%{_docdir}/%{name}-%{version}/python/examples
-install -m0644 -t %{buildroot}%{_docdir}/%{name}-%{version} \
-        AUTHORS ChangeLog NEWS README
 install -m0644 python/README %{buildroot}%{_docdir}/%{name}-%{version}/python
 install -m0644 -t %{buildroot}%{_docdir}/%{name}-%{version}/python/examples \
         python/examples/*
@@ -91,9 +86,9 @@ install -m0644 -t %{buildroot}%{_docdir}/%{name}-%{version}/python/examples \
 
 %files python
 %defattr(-,root,root,-)
-%{python_sitearch}/*.so
+%{python3_sitearch}/*.so
 
 %files doc
 %defattr(-,root,root,-)
-%{_docdir}/%{name}-%{version}
-%doc %{_datadir}/gtk-doc/html/libiptcdata
+%doc README AUTHORS ChangeLog NEWS
+%{_docdir}/%{name}-%{version}/python
